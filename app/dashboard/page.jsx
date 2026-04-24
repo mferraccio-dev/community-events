@@ -43,86 +43,97 @@ export default function DashboardPage() {
 
   async function handleRsvp(eventId, response) {
     const { data: { user: authUser } } = await supabase.auth.getUser()
-
     const existing = Object.keys(rsvps).includes(eventId)
-
     if (existing) {
-      await supabase
-        .from('rsvps')
-        .update({ response })
-        .eq('user_id', authUser.id)
-        .eq('event_id', eventId)
+      await supabase.from('rsvps').update({ response }).eq('user_id', authUser.id).eq('event_id', eventId)
     } else {
-      await supabase
-        .from('rsvps')
-        .insert({ user_id: authUser.id, event_id: eventId, response })
+      await supabase.from('rsvps').insert({ user_id: authUser.id, event_id: eventId, response })
     }
-
     setRsvps({ ...rsvps, [eventId]: response })
   }
 
   function formatDate(dateStr) {
     return new Date(dateStr).toLocaleDateString('en-US', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     })
   }
 
-  if (loading) return <div style={{ padding: '80px 20px', fontFamily: 'sans-serif', color: '#666' }}>Loading...</div>
+  function formatTime(dateStr) {
+    return new Date(dateStr).toLocaleTimeString('en-US', {
+      hour: 'numeric', minute: '2-digit', hour12: true
+    })
+  }
+
+  if (loading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9f9f7', fontFamily: 'sans-serif' }}>
+      <p style={{ color: '#999' }}>Loading...</p>
+    </div>
+  )
 
   return (
-    <div style={{ maxWidth: '700px', margin: '0 auto', padding: '40px 20px', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+    <div style={{ minHeight: '100vh', background: '#f9f9f7', fontFamily: 'sans-serif' }}>
+      {/* Header */}
+      <div style={{ background: '#fff', borderBottom: '1px solid #eee', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: '500', marginBottom: '4px' }}>Upcoming events</h1>
-          <p style={{ fontSize: '14px', color: '#666' }}>Welcome, {user?.full_name}</p>
+          <div style={{ fontSize: '18px', fontWeight: '600', color: '#111' }}>Community Events</div>
+          <div style={{ fontSize: '13px', color: '#888', marginTop: '2px' }}>Welcome back, {user?.full_name}</div>
         </div>
         <button
           onClick={async () => { await supabase.auth.signOut(); window.location.href = '/login' }}
-          style={{ fontSize: '13px', padding: '6px 14px', borderRadius: '8px', border: '1px solid #ddd', background: 'transparent', cursor: 'pointer', color: '#666' }}
+          style={{ fontSize: '13px', padding: '7px 16px', borderRadius: '8px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer', color: '#555' }}
         >
           Sign out
         </button>
       </div>
 
-      {events.length === 0 && (
-        <div style={{ padding: '60px 20px', textAlign: 'center', color: '#999', fontSize: '14px' }}>
-          No upcoming events yet. Check back soon.
-        </div>
-      )}
+      {/* Content */}
+      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '32px 20px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111', marginBottom: '20px' }}>Upcoming Events</h2>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {events.map(event => (
-          <div key={event.id} style={{ border: '1px solid #eee', borderRadius: '12px', padding: '20px', background: '#fff' }}>
-            <div style={{ marginBottom: '12px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: '500', marginBottom: '4px' }}>{event.title}</h2>
-              <p style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>{formatDate(event.event_date)}</p>
-              {event.location && <p style={{ fontSize: '13px', color: '#666' }}>{event.location}</p>}
-            </div>
-
-            {event.description && (
-              <p style={{ fontSize: '14px', color: '#444', lineHeight: '1.6', marginBottom: '16px' }}>{event.description}</p>
-            )}
-
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {['yes', 'maybe', 'no'].map(response => (
-                <button
-                  key={response}
-                  onClick={() => handleRsvp(event.id, response)}
-                  style={{
-                    padding: '6px 16px', borderRadius: '20px', fontSize: '13px', cursor: 'pointer',
-                    border: rsvps[event.id] === response ? '1px solid #000' : '1px solid #ddd',
-                    background: rsvps[event.id] === response ? '#000' : 'transparent',
-                    color: rsvps[event.id] === response ? '#fff' : '#666',
-                    fontWeight: rsvps[event.id] === response ? '500' : '400'
-                  }}
-                >
-                  {response.charAt(0).toUpperCase() + response.slice(1)}
-                </button>
-              ))}
-            </div>
+        {events.length === 0 && (
+          <div style={{ background: '#fff', borderRadius: '16px', padding: '48px', textAlign: 'center', color: '#999', fontSize: '14px', border: '1px solid #eee' }}>
+            No upcoming events yet. Check back soon.
           </div>
-        ))}
-      </div>
-    </div>
-  )
-}
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {events.map(event => (
+            <div key={event.id} style={{ background: '#fff', border: '1px solid #eee', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+              {/* Event color bar */}
+              <div style={{ height: '6px', background: 'linear-gradient(90deg, #f97316, #fb923c)' }} />
+
+              <div style={{ padding: '20px 24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111', margin: 0 }}>{event.title}</h3>
+                  {rsvps[event.id] && (
+                    <span style={{ fontSize: '12px', padding: '3px 10px', borderRadius: '20px', background: rsvps[event.id] === 'yes' ? '#dcfce7' : rsvps[event.id] === 'maybe' ? '#fef9c3' : '#fee2e2', color: rsvps[event.id] === 'yes' ? '#166534' : rsvps[event.id] === 'maybe' ? '#854d0e' : '#991b1b', fontWeight: '500' }}>
+                      {rsvps[event.id] === 'yes' ? '✓ Going' : rsvps[event.id] === 'maybe' ? '? Maybe' : '✗ Not going'}
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#555' }}>
+                    <span>📅</span>
+                    <span>{formatDate(event.event_date)} at {formatTime(event.event_date)}</span>
+                  </div>
+                  {event.location && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#555' }}>
+                      <span>📍</span>
+                      <span>{event.location}</span>
+                    </div>
+                  )}
+                </div>
+
+                {event.description && (
+                  <p style={{ fontSize: '14px', color: '#666', lineHeight: '1.6', marginBottom: '20px' }}>{event.description}</p>
+                )}
+
+                <div style={{ display: 'flex', gap: '8px', paddingTop: '16px', borderTop: '1px solid #f0f0f0' }}>
+                  <span style={{ fontSize: '13px', color: '#888', marginRight: '4px', alignSelf: 'center' }}>RSVP:</span>
+                  {[['yes', '✓ Going'], ['maybe', '? Maybe'], ['no', '✗ Can\'t go']].map(([val, label]) => (
+                    <button
+                      key={val}
+                      onClick={() => handleRsvp(event.id, val)}
+                      style={{
+                        padding: '7px 16px', borderRadius: '20px', fontSize
