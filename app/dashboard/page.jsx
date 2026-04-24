@@ -93,6 +93,7 @@ export default function DashboardPage() {
                     </div>
                   )}
                 </div>
+                <a href="https://hkphocnlmzjbkbvbwfmz.supabase.co/storage/v1/object/public/event-files/alohoa%20party.pdf" target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginBottom: '16px', fontSize: '13px', padding: '6px 14px', borderRadius: '20px', border: '1px solid #f97316', color: '#f97316', textDecoration: 'none', fontWeight: '500' }}>📄 View Flyer</a>
                 {event.description && (
                   <p style={{ fontSize: '14px', color: '#666', lineHeight: '1.6', marginBottom: '20px' }}>{event.description}</p>
                 )}
