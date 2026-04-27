@@ -8,9 +8,17 @@ export default function AttendancePage() {
   const [expanded, setExpanded] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchData()
+useEffect(() => {
+    checkAdminAndFetch()
   }, [])
+
+  async function checkAdminAndFetch() {
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    if (!authUser) { window.location.href = '/login'; return }
+    const { data: profile } = await supabase.from('users').select('role').eq('id', authUser.id).single()
+    if (!profile || profile.role !== 'admin') { window.location.href = '/dashboard'; return }
+    fetchData()
+  }
 
   async function fetchData() {
     const { data: eventsData } = await supabase

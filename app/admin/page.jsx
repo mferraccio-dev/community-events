@@ -7,9 +7,17 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
 
-  useEffect(() => {
-    fetchUsers()
+useEffect(() => {
+    checkAdminAndFetch()
   }, [])
+
+  async function checkAdminAndFetch() {
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    if (!authUser) { window.location.href = '/login'; return }
+    const { data: profile } = await supabase.from('users').select('role').eq('id', authUser.id).single()
+    if (!profile || profile.role !== 'admin') { window.location.href = '/dashboard'; return }
+    fetchUsers()
+  }
 
   async function fetchUsers() {
     const { data } = await supabase

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 
 export default function CreateEventPage() {
@@ -11,6 +11,15 @@ export default function CreateEventPage() {
   })
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  useEffect(() => {
+    async function checkAdmin() {
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (!authUser) { window.location.href = '/login'; return }
+      const { data: profile } = await supabase.from('users').select('role').eq('id', authUser.id).single()
+      if (!profile || profile.role !== 'admin') { window.location.href = '/dashboard'; return }
+    }
+    checkAdmin()
+  }, [])
   const [error, setError] = useState('')
 
   function handleChange(e) {
