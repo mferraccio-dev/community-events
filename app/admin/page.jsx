@@ -67,7 +67,14 @@ export default function AdminPage() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px', fontFamily: 'sans-serif' }}>
-      <h1 style={{ fontSize: '22px', fontWeight: '500', marginBottom: '24px' }}>User management</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: '500', margin: 0 }}>User management</h1>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <a href="/admin" style={{ fontSize: '13px', padding: '7px 16px', borderRadius: '8px', background: '#000', color: '#fff', textDecoration: 'none', fontWeight: '500' }}>Users</a>
+          <a href="/admin/attendance" style={{ fontSize: '13px', padding: '7px 16px', borderRadius: '8px', border: '1px solid #ddd', color: '#555', textDecoration: 'none' }}>Attendance</a>
+          <a href="/admin/events" style={{ fontSize: '13px', padding: '7px 16px', borderRadius: '8px', border: '1px solid #ddd', color: '#555', textDecoration: 'none' }}>Create Event</a>
+        </div>
+      </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '24px' }}>
         {[['Pending review', counts.pending], ['Approved members', counts.approved], ['Removed', counts.removed]].map(([label, count]) => (
