@@ -82,12 +82,12 @@ export default function AttendancePage() {
               >
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '15px', fontWeight: '500' }}>{event.title}</span>
+                    <span style={{ fontSize: '15px', fontWeight: '500', color: '#111' }}>{event.title}</span>
                     {event.cancelled && (
                       <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '10px', background: '#fee2e2', color: '#991b1b', fontWeight: '500' }}>Cancelled</span>
                     )}
                   </div>
-                  <div style={{ fontSize: '13px', color: '#666' }}>{formatDate(event.event_date)}</div>
+                  <div style={{ fontSize: '13px', color: '#444' }}>{formatDate(event.event_date)}</div>
                 </div>
 
                 {/* RSVP counts */}
