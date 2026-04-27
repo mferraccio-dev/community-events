@@ -21,11 +21,7 @@ export default function AdminPage() {
   }
 
   async function updateStatus(id, status) {
-    await supabase
-      .from('users')
-      .update({ status })
-      .eq('id', id)
-
+    await supabase.from('users').update({ status }).eq('id', id)
     const user = users.find(u => u.id === id)
     if (user) {
       await fetch('/api/email', {
@@ -38,7 +34,6 @@ export default function AdminPage() {
         })
       })
     }
-
     fetchUsers()
   }
 
@@ -67,15 +62,18 @@ export default function AdminPage() {
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px', fontFamily: 'sans-serif' }}>
+
+      {/* Nav */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <h1 style={{ fontSize: '22px', fontWeight: '500', margin: 0 }}>User management</h1>
         <div style={{ display: 'flex', gap: '8px' }}>
           <a href="/admin" style={{ fontSize: '13px', padding: '7px 16px', borderRadius: '8px', background: '#000', color: '#fff', textDecoration: 'none', fontWeight: '500' }}>Users</a>
-          <a href="/admin/attendance" style={{ fontSize: '13px', padding: '7px 16px', borderRadius: '8px', border: '1px solid #ddd', color: '#555', textDecoration: 'none' }}>Attendance</a>
-          <a href="/admin/events" style={{ fontSize: '13px', padding: '7px 16px', borderRadius: '8px', border: '1px solid #ddd', color: '#555', textDecoration: 'none' }}>Create Event</a>
+          <a href="/admin/attendance" style={{ fontSize: '13px', padding: '7px 16px', borderRadius: '8px', background: '#333', color: '#fff', textDecoration: 'none', border: '1px solid #555' }}>Attendance</a>
+          <a href="/admin/events" style={{ fontSize: '13px', padding: '7px 16px', borderRadius: '8px', background: '#333', color: '#fff', textDecoration: 'none', border: '1px solid #555' }}>Create Event</a>
         </div>
       </div>
 
+      {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '24px' }}>
         {[['Pending review', counts.pending], ['Approved members', counts.approved], ['Removed', counts.removed]].map(([label, count]) => (
           <div key={label} style={{ background: '#f5f5f5', borderRadius: '8px', padding: '16px' }}>
@@ -85,18 +83,20 @@ export default function AdminPage() {
         ))}
       </div>
 
+      {/* Filter pills */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
         {['all', 'pending', 'approved', 'removed'].map(f => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid #ddd', background: filter === f ? '#000' : 'transparent', color: filter === f ? '#fff' : '#666', fontSize: '13px', cursor: 'pointer' }}
+            style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid #888', background: filter === f ? '#fff' : '#333', color: filter === f ? '#000' : '#fff', fontSize: '13px', cursor: 'pointer' }}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
       </div>
 
+      {/* User list */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {filtered.length === 0 && (
           <div style={{ padding: '40px', textAlign: 'center', color: '#999', fontSize: '14px' }}>No users in this category</div>
@@ -106,23 +106,18 @@ export default function AdminPage() {
             <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: user.status === 'pending' ? '#fef3c7' : user.status === 'approved' ? '#d1fae5' : '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '500', color: user.status === 'pending' ? '#92400e' : user.status === 'approved' ? '#065f46' : '#6b7280', flexShrink: 0 }}>
               {initials(user.full_name)}
             </div>
-
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '14px', fontWeight: '500' }}>{user.full_name}</div>
               <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>{user.email} · Age {calculateAge(user.date_of_birth)} · Joined {new Date(user.created_at).toLocaleDateString()}</div>
             </div>
-
             <span style={{ fontSize: '11px', padding: '3px 8px', borderRadius: '10px', fontWeight: '500', background: user.status === 'pending' ? '#fef3c7' : user.status === 'approved' ? '#d1fae5' : '#f3f4f6', color: user.status === 'pending' ? '#92400e' : user.status === 'approved' ? '#065f46' : '#6b7280' }}>
               {user.status}
             </span>
-
             <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-              {user.status === 'pending' && (
-                <>
-                  <button onClick={() => updateStatus(user.id, 'approved')} style={{ fontSize: '12px', padding: '5px 12px', borderRadius: '6px', border: '1px solid #6ee7b7', background: 'transparent', color: '#065f46', cursor: 'pointer' }}>Approve</button>
-                  <button onClick={() => updateStatus(user.id, 'removed')} style={{ fontSize: '12px', padding: '5px 12px', borderRadius: '6px', border: '1px solid #fca5a5', background: 'transparent', color: '#991b1b', cursor: 'pointer' }}>Reject</button>
-                </>
-              )}
+              {user.status === 'pending' && (<>
+                <button onClick={() => updateStatus(user.id, 'approved')} style={{ fontSize: '12px', padding: '5px 12px', borderRadius: '6px', border: '1px solid #6ee7b7', background: 'transparent', color: '#065f46', cursor: 'pointer' }}>Approve</button>
+                <button onClick={() => updateStatus(user.id, 'removed')} style={{ fontSize: '12px', padding: '5px 12px', borderRadius: '6px', border: '1px solid #fca5a5', background: 'transparent', color: '#991b1b', cursor: 'pointer' }}>Reject</button>
+              </>)}
               {user.status === 'approved' && (
                 <button onClick={() => updateStatus(user.id, 'removed')} style={{ fontSize: '12px', padding: '5px 12px', borderRadius: '6px', border: '1px solid #fca5a5', background: 'transparent', color: '#991b1b', cursor: 'pointer' }}>Remove</button>
               )}
